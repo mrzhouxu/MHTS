@@ -19,14 +19,34 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import com.mhts.controller.AdminController;
+import com.mhts.utils.DefaultTableModel;
+import com.mhts.utils.TableHideColumn;
+
+/**
+ * @author zhouxu
+ * 下面用的DefaultTableModel都是自己写的类
+ */
 public class BusinessStatusView extends JPanel implements ActionListener{
 	
 	Font font = new Font("宋体", Font.PLAIN, 12);
 	JTable table = null;
 	boolean isClick = true;
+	DefaultTableModel tableModel = null;
+	Vector tableHeader = null;
+	Vector datas = null;
+	int count = 0;
+	double money = 0;
+	JButton homePage = null,previous = null,next = null,endPage = null;
+	JLabel jlMoney = null;
+	JLabel jlCount = null;
+	JComboBox years=null,months=null;
+	JTextField jtSkip = new JTextField();
+	int page = 1,num = 20;
+	String[] tableHeaderStr = {"序号","id","身份证号","票类型","窗口号","购票时间"};
 	
 	BusinessStatusView() {
 		/** breadCut **/
@@ -39,13 +59,15 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 		jlDate.setBounds(30, 50, 100, 30);
 		jlDate.setFont(font);
 		
-		JComboBox years = new JComboBox();
+		years = new JComboBox();
+		years.addItem("全部");
 		for(int i=Calendar.getInstance().get(Calendar.YEAR);i>=2000;i--) {
 			years.addItem(i+"年");
 		}
 		years.setBounds(110, 50, 80, 30);
 		
-		JComboBox months = new JComboBox();
+		months = new JComboBox();
+		months.addItem("全部");
 		for(int i=1;i<=12;i++) {
 			months.addItem(i+"月");
 		}
@@ -57,62 +79,60 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 		JButton btReset = new JButton("重置");
 		btReset.setBounds(390, 50, 80, 30);
 		
+		/** 得到数据  **/
+		select();//初始化表格数据
+		
 		/** income **/
 		JLabel jlIncome = new JLabel("收入(单位元):");
 		jlIncome.setFont(font);
 		jlIncome.setBounds(700, 50, 100, 30);
 		
-		JLabel jlMoney = new JLabel("888888888.00");
+		jlMoney = new JLabel(money+" 元");
 		jlMoney.setFont(new Font("宋体", Font.PLAIN, 30));
 		jlMoney.setBounds(780, 50, 200, 30);
 		
 		/** table **/
-		Vector tableHeader = new Vector();
-		String[] tableHeaderStr = {"序号","身份证号","票类型","窗口号","购票时间"};
+		tableHeader = new Vector();
 		for(int i=0,len=tableHeaderStr.length;i<len;i++) {
 			tableHeader.add(tableHeaderStr[i]);
 		}
         
-		Vector datas = new Vector();
-		for(int i=0;i<20;i++) {
-			Vector temp = new Vector();
-			temp.add(i+1);
-			temp.add("10001");
-			temp.add("成人票");
-			temp.add("壹号窗口");
-			temp.add("2017-10-12 20：21：10");
-			datas.add(temp);
-		}
+		tableModel=new DefaultTableModel(datas, tableHeader);
 		
-		DefaultTableModel tableModel=new DefaultTableModel(datas, tableHeader);
 		table = new JTable();
+		table.getTableHeader().setReorderingAllowed(false);//表头不可拖动
+		table.getTableHeader().setResizingAllowed(false);//列大小不可改变
 		table.setRowHeight(26);//指定每一行的行高50
 		table.setModel(tableModel);
+		TableHideColumn.hideColumn(table,1);
 		JScrollPane jscrollPane = new JScrollPane(table);
 		jscrollPane.setBounds(30, 100, 930, 548);
 		
 		/** paging **/
-		JLabel jlCount = new JLabel("共 888888 条记录");
+		jlCount = new JLabel("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		jlCount.setFont(font);
-		jlCount.setBounds(30, 666, 200, 30);
+		jlCount.setBounds(30, 666, 300, 30);
+
 		
-		JButton homePage = new JButton("首页");
+		homePage = new JButton("首页");
 		homePage.setFont(font);
 		homePage.setBounds(400, 666, 100, 30);
+		homePage.setEnabled(false);
 		
-		JButton previous = new JButton("上一页");
+		previous = new JButton("上一页");
 		previous.setFont(font);
 		previous.setBounds(510, 666, 100, 30);
+		previous.setEnabled(false);
 		
-		JButton next = new JButton("下一页");
+		next = new JButton("下一页");
 		next.setFont(font);
 		next.setBounds(620, 666, 100, 30);
 		
-		JButton endPage = new JButton("尾页");
+		endPage = new JButton("尾页");
 		endPage.setFont(font);
 		endPage.setBounds(730, 666, 100, 30);
 		
-		JTextField jtSkip = new JTextField();
+//		jtSkip = new JTextField();
 		jtSkip.setFont(font);
 		jtSkip.setBounds(840, 666, 50, 30);
 		
@@ -133,7 +153,9 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 			public void keyPressed(KeyEvent e) {
 				// TODO 自动生成的方法存根
 				super.keyPressed(e);
-				btSkip.doClick();
+				if(e.getKeyCode() == 10) {
+					btSkip.doClick();
+				}
 			}
 		});
 		
@@ -158,6 +180,17 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 		this.setLayout(null);
 		this.setSize(1000,770);
 	}
+	
+	public void select () {
+		String year = years.getSelectedItem().toString();
+		String month = months.getSelectedItem().toString();
+		String pageSkip = !jtSkip.getText().replaceAll(" ", "").equals("")?jtSkip.getText().replaceAll(" ", ""):page+"";
+		int num = this.num;
+		AdminController adminController = new AdminController();
+		datas = adminController.selRecord(year, month, pageSkip, num);
+		count = adminController.selRecordCount(year, month);
+		money = adminController.selRecordMoney(year, month);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -165,19 +198,94 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 		isClick = !isClick;
 
 		if(e.getActionCommand().equals("查询")) {
-			System.out.println("查询");
+			jtSkip.setText(null);
+			page = 1;
+			select();
+			tableModel=new DefaultTableModel(datas, tableHeader);
+			table.setModel(tableModel);
+			TableHideColumn.hideColumn(table,1);
+			jlMoney.setText(money+" 元");
+			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("重置")) {
-			System.out.println("重置");
+			years.setSelectedIndex(0);
+			months.setSelectedIndex(0);
+			jtSkip.setText(null);
+			page = 1;
+			select();
+			tableModel=new DefaultTableModel(datas, tableHeader);
+			table.setModel(tableModel);
+			TableHideColumn.hideColumn(table,1);
+			jlMoney.setText(money+" 元");
+			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("首页")) {
-			System.out.println("首页");
+			jtSkip.setText(null);
+			page = 1;
+			select();
+			tableModel=new DefaultTableModel(datas, tableHeader);
+			table.setModel(tableModel);
+			TableHideColumn.hideColumn(table,1);
+			jlMoney.setText(money+" 元");
+			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("上一页")) {
-			System.out.println("上一页");
+//			if(page<=1) {
+//				return;
+//			}
+			jtSkip.setText(null);
+			page--;
+			select();
+			tableModel=new DefaultTableModel(datas, tableHeader);
+			table.setModel(tableModel);
+			TableHideColumn.hideColumn(table,1);
+			jlMoney.setText(money+" 元");
+			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("下一页")) {
-			System.out.println("下一页");
+//			if(page==Math.ceil(Double.valueOf(count)/Double.valueOf(num))) {
+//				return;
+//			}
+			jtSkip.setText(null);
+			page++;
+			select();
+			tableModel=new DefaultTableModel(datas, tableHeader);
+			table.setModel(tableModel);
+			TableHideColumn.hideColumn(table,1);
+			jlMoney.setText(money+" 元");
+			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("尾页")) {
-			System.out.println("尾页");
+			jtSkip.setText(null);
+			page = (int) Math.ceil(Double.valueOf(count)/Double.valueOf(num));
+			select();
+			tableModel=new DefaultTableModel(datas, tableHeader);
+			table.setModel(tableModel);
+			TableHideColumn.hideColumn(table,1);
+			jlMoney.setText(money+" 元");
+			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("跳转")) {
-			System.out.println("跳转");
+			if(jtSkip.getText().equals("")) {
+				JOptionPane.showMessageDialog(this, "请输入正确的页码！", "错误", JOptionPane.ERROR_MESSAGE);
+			}else if(Integer.valueOf(jtSkip.getText())<1 || Integer.valueOf(jtSkip.getText())>(int) Math.ceil(Double.valueOf(count)/Double.valueOf(num))) {
+				JOptionPane.showMessageDialog(this, "请输入正确的页码！", "错误", JOptionPane.ERROR_MESSAGE);
+			}else {
+				page = Integer.valueOf(jtSkip.getText());
+				select();
+				tableModel=new DefaultTableModel(datas, tableHeader);
+				table.setModel(tableModel);
+				TableHideColumn.hideColumn(table,1);
+				jlMoney.setText(money+" 元");
+				jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
+			}
+			
+		}
+		
+		homePage.setEnabled(true);
+		previous.setEnabled(true);
+		next.setEnabled(true);
+		endPage.setEnabled(true);
+		if(page == 1) {
+			homePage.setEnabled(false);
+			previous.setEnabled(false);
+		}else if(page == Math.ceil(Double.valueOf(count)/Double.valueOf(num))) {
+			next.setEnabled(false);
+			endPage.setEnabled(false);
 		}
 		
 		/** 线程 防止按钮多点 **/
@@ -196,4 +304,6 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 			}
 		}.start();
 	}
+	
+	
 }
