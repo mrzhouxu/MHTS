@@ -1,13 +1,28 @@
-import java.awt.BorderLayout;
-import java.util.Vector;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import javax.swing.JFrame;
+
+import org.junit.Test;
+
+import com.mhts.bean.Ticketer;
+import com.mhts.utils.JDBCUtils;
 
 public class JtableTest extends JFrame {
 	
-
-	public static void main(String[] args) {
-		System.out.println(String.format("%02d", Integer.valueOf("11月".replaceAll("\\D", ""))));
-//		System.out.println(String.format("%02d","1")); //x是你要输出的整数
+	
+	@Test
+	public void resetPassword() throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		int resultSet = 0;
+		
+		for(int i=0;i<100;i++) {
+			String sql = "insert into ticketer(name,id_card,phone,account,password,window,status) values('"+i+"','410000000000000000','15444411111','1','1','1','0')";
+			preparedStatement = con.prepareStatement(sql);
+			resultSet = preparedStatement.executeUpdate();
+		}
+		
 	}
 }

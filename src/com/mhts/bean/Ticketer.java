@@ -7,7 +7,9 @@ public class Ticketer {
 	private String phone;
 	private String account;
 	private String password;
+	private String window;
 	private String status;
+	
 	
 	public String getId() {
 		return id;
@@ -44,6 +46,12 @@ public class Ticketer {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getWindow() {
+		return window;
+	}
+	public void setWindow(String window) {
+		this.window = window;
 	}
 	public String getStatus() {
 		return status;

@@ -33,7 +33,7 @@ public class JDBCUtils {
 			Class.forName(NAME);
 			if (conn==null||conn.isClosed()) {
 				conn = DriverManager.getConnection(URL, USER, PASSWORD);
-				System.out.println("数据库连接成功！");
+//				System.out.println("数据库连接成功！");
 			}
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
@@ -51,15 +51,15 @@ public class JDBCUtils {
 		try {
 			if(connection!=null || connection.isClosed()) {
 				connection.close();
-				System.out.println("connection.close();");
+//				System.out.println("connection.close();");
 			}
 			if(preparedStatement!=null || preparedStatement.isClosed()) {
 				preparedStatement.close();
-				System.out.println("preparedStatement.close();");
+//				System.out.println("preparedStatement.close();");
 			}
 			if(resultSet!=null || resultSet.isClosed()) {
 				resultSet.close();
-				System.out.println("resultSet.close();");
+//				System.out.println("resultSet.close();");
 			}
 		} catch (Exception e) {
 			System.out.println("释放资源失败！");

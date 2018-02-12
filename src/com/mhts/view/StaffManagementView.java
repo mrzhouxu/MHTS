@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Vector;
 
@@ -22,6 +23,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import com.mhts.bean.Ticketer;
 import com.mhts.controller.AdminController;
 import com.mhts.utils.DefaultTableModel;
 import com.mhts.utils.TableHideColumn;
@@ -30,7 +32,7 @@ import com.mhts.utils.TableHideColumn;
  * @author zhouxu
  * 下面用的DefaultTableModel都是自己写的类
  */
-public class BusinessStatusView extends JPanel implements ActionListener{
+public class StaffManagementView extends JPanel implements ActionListener{
 	
 	Font font = new Font("宋体", Font.PLAIN, 12);
 	JTable table = null;
@@ -41,55 +43,55 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 	int count = 0;
 	double money = 0;
 	JButton homePage = null,previous = null,next = null,endPage = null;
-	JLabel jlMoney = null;
 	JLabel jlCount = null;
-	JComboBox years=null,months=null;
+	JComboBox key = null;
+	JTextField val = null;
 	JTextField jtSkip = new JTextField();
 	int page = 1,num = 20;
-	String[] tableHeaderStr = {"序号","id","身份证号","票类型","窗口号","购票时间"};
+	String[] tableHeaderStr = {"序号","id","姓名","身份证号","手机号","账号","所属窗口"};
 	
-	BusinessStatusView() {
+	StaffManagementView() {
 		/** breadCut **/
-		JLabel jlTitle = new JLabel("管理员界面 > 营业状况");
+		JLabel jlTitle = new JLabel("管理员界面 > 员工管理");
 		jlTitle.setBounds(30, 10, 150, 30);
 		jlTitle.setFont(font);
 		
 		/** select **/
-		JLabel jlDate = new JLabel("请选择日期：");
+		JLabel jlDate = new JLabel("查询条件");
 		jlDate.setBounds(30, 50, 100, 30);
 		jlDate.setFont(font);
 		
-		years = new JComboBox();
-		years.addItem("全部");
-		for(int i=Calendar.getInstance().get(Calendar.YEAR);i>=2000;i--) {
-			years.addItem(i+"年");
-		}
-		years.setBounds(110, 50, 80, 30);
+		key = new JComboBox();
+		key.addItem("全部");
+		key.addItem("姓名");
+		key.addItem("身份证号");
+		key.addItem("手机号");
+		key.setBounds(100, 50, 90, 30);
 		
-		months = new JComboBox();
-		months.addItem("全部");
-		for(int i=1;i<=12;i++) {
-			months.addItem(i+"月");
-		}
-		months.setBounds(200, 50, 80, 30);
+		val = new JTextField();
+		val.setBounds(200, 50, 150, 30);
 		
 		JButton btSelect = new JButton("查询");
-		btSelect.setBounds(300, 50, 80, 30);
+		btSelect.setBounds(360, 50, 80, 30);
 		
 		JButton btReset = new JButton("重置");
-		btReset.setBounds(390, 50, 80, 30);
+		btReset.setBounds(450, 50, 80, 30);
+		
+		JButton btAdd = new JButton("新增");
+		btAdd.setBounds(540, 50, 80, 30);
+
+		JButton btUpdate = new JButton("修改");
+		btUpdate.setBounds(630, 50, 80, 30);
+		
+		JButton btDel = new JButton("删除");
+		btDel.setBounds(720, 50, 80, 30);
+		
+		JButton btResetPassword = new JButton("密码重置");
+		btResetPassword.setBounds(810, 50, 150, 30);
+		
 		
 		/** 得到数据  **/
 		select();//初始化表格数据
-		
-		/** income **/
-		JLabel jlIncome = new JLabel("收入(单位元):");
-		jlIncome.setFont(font);
-		jlIncome.setBounds(700, 50, 100, 30);
-		
-		jlMoney = new JLabel(money+" 元");
-		jlMoney.setFont(new Font("宋体", Font.PLAIN, 30));
-		jlMoney.setBounds(780, 50, 200, 30);
 		
 		/** table **/
 		tableHeader = new Vector();
@@ -137,7 +139,6 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 			endPage.setEnabled(false);
 		}
 		
-//		jtSkip = new JTextField();
 		jtSkip.setFont(font);
 		jtSkip.setBounds(840, 666, 50, 30);
 		
@@ -163,16 +164,28 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 				}
 			}
 		});
+		btAdd.addActionListener(this);
+		btUpdate.addActionListener(this);
+		btDel.addActionListener(this);
+		btResetPassword.addActionListener(this);
+		val.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO 自动生成的方法存根
+				super.keyPressed(e);
+				if(e.getKeyCode() == 10) {
+					btSelect.doClick();
+				}
+			}
+		});
 		
 		/** add jpanel **/
 		this.add(jlTitle);
 		this.add(jlDate);
-		this.add(years);
-		this.add(months);
+		this.add(key);
+		this.add(val);
 		this.add(btSelect);
 		this.add(btReset);
-		this.add(jlIncome);
-		this.add(jlMoney);
 		this.add(jscrollPane);
 		this.add(jlCount);
 		this.add(homePage);
@@ -181,21 +194,39 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 		this.add(endPage);
 		this.add(jtSkip);
 		this.add(btSkip);
+		this.add(btAdd);
+		this.add(btUpdate);
+		this.add(btDel);
+		this.add(btResetPassword);
 		
 		this.setLayout(null);
 		this.setSize(1000,770);
 	}
 	
 	public void select () {
-		String year = years.getSelectedItem().toString();
-		String month = months.getSelectedItem().toString();
+		String key = this.key.getSelectedItem().toString();
+		String val = this.val.getText();
+		switch (key) {
+			case "姓名":
+				key = "name";
+				break;
+			case "身份证号":
+				key = "id_card";
+				break;
+			case "手机号":
+				key = "phone";
+				break;
+			case "全部":
+				key = "id";
+				val = "";
+				break;
+		}
 		String pageSkip = !jtSkip.getText().replaceAll(" ", "").equals("")?jtSkip.getText().replaceAll(" ", ""):page+"";
 		int num = this.num;
 		AdminController adminController = new AdminController();
-		datas = adminController.selRecord(year, month, pageSkip, num);
-		count = adminController.selRecordCount(year, month);
-		money = adminController.selRecordMoney(year, month);
-		if(count == 0)page = 0;
+		datas = adminController.getTicketer(key, val, pageSkip, num+"");
+		count = adminController.getTicketerCount(key, val);
+		if(count == 0)page=0;
 	}
 
 	@Override
@@ -210,18 +241,16 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 			tableModel=new DefaultTableModel(datas, tableHeader);
 			table.setModel(tableModel);
 			TableHideColumn.hideColumn(table,1);
-			jlMoney.setText(money+" 元");
 			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("重置")) {
-			years.setSelectedIndex(0);
-			months.setSelectedIndex(0);
+			key.setSelectedIndex(0);
+			val.setText(null);
 			jtSkip.setText(null);
 			page = 1;
 			select();
 			tableModel=new DefaultTableModel(datas, tableHeader);
 			table.setModel(tableModel);
 			TableHideColumn.hideColumn(table,1);
-			jlMoney.setText(money+" 元");
 			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("首页")) {
 			jtSkip.setText(null);
@@ -230,31 +259,22 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 			tableModel=new DefaultTableModel(datas, tableHeader);
 			table.setModel(tableModel);
 			TableHideColumn.hideColumn(table,1);
-			jlMoney.setText(money+" 元");
 			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("上一页")) {
-//			if(page<=1) {
-//				return;
-//			}
 			jtSkip.setText(null);
 			page--;
 			select();
 			tableModel=new DefaultTableModel(datas, tableHeader);
 			table.setModel(tableModel);
 			TableHideColumn.hideColumn(table,1);
-			jlMoney.setText(money+" 元");
 			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("下一页")) {
-//			if(page==Math.ceil(Double.valueOf(count)/Double.valueOf(num))) {
-//				return;
-//			}
 			jtSkip.setText(null);
 			page++;
 			select();
 			tableModel=new DefaultTableModel(datas, tableHeader);
 			table.setModel(tableModel);
 			TableHideColumn.hideColumn(table,1);
-			jlMoney.setText(money+" 元");
 			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("尾页")) {
 			jtSkip.setText(null);
@@ -263,7 +283,6 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 			tableModel=new DefaultTableModel(datas, tableHeader);
 			table.setModel(tableModel);
 			TableHideColumn.hideColumn(table,1);
-			jlMoney.setText(money+" 元");
 			jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 		}else if(e.getActionCommand().equals("跳转")) {
 			if(jtSkip.getText().equals("")) {
@@ -276,10 +295,74 @@ public class BusinessStatusView extends JPanel implements ActionListener{
 				tableModel=new DefaultTableModel(datas, tableHeader);
 				table.setModel(tableModel);
 				TableHideColumn.hideColumn(table,1);
-				jlMoney.setText(money+" 元");
 				jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
 			}
 			
+		}else if(e.getActionCommand().equals("新增")) {
+			this.removeAll();
+			this.add(new AddTicketerView());
+			this.repaint();
+			this.validate();
+		}else if(e.getActionCommand().equals("修改")) {
+			System.out.println("修改");
+		}else if(e.getActionCommand().equals("删除")) {
+			ArrayList<Ticketer> selectTicketer = new ArrayList<Ticketer>();
+			int selLen = table.getSelectedRowCount();
+			if(JOptionPane.showConfirmDialog(this, "将要删除选中的"+selLen+"条记录", "是否继续", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION) {
+				int [] arr = new int[selLen];
+				for(int i=0;i<selLen;i++) {
+					int row = table.getSelectedRows()[i];
+					Ticketer tTemp = new Ticketer();
+					tTemp.setId(table.getValueAt(row, 1).toString());
+					tTemp.setName(table.getValueAt(row, 2).toString());
+					tTemp.setId_card(table.getValueAt(row, 3).toString());
+					tTemp.setPhone(table.getValueAt(row, 4).toString());
+					tTemp.setAccount(table.getValueAt(row, 5).toString());
+					tTemp.setWindow(table.getValueAt(row, 6).toString());
+					selectTicketer.add(tTemp);
+				}
+				AdminController adminController = new AdminController();
+				boolean result = adminController.delTicketer(selectTicketer);
+				if(result) {
+					key.setSelectedIndex(0);
+					val.setText(null);
+					jtSkip.setText(null);
+					page = 1;
+					select();
+					tableModel=new DefaultTableModel(datas, tableHeader);
+					table.setModel(tableModel);
+					TableHideColumn.hideColumn(table,1);
+					jlCount.setText("共 "+count+" 条记录       第 "+page+" 页 / 共 "+(int)Math.ceil(Double.valueOf(count)/Double.valueOf(num))+" 页");
+				
+					JOptionPane.showMessageDialog(this, "成功", "删除成功！", JOptionPane.INFORMATION_MESSAGE);
+				}else {
+					JOptionPane.showMessageDialog(this, "失败", "删除失败！", JOptionPane.ERROR_MESSAGE);
+				}
+			}; 
+		}else if(e.getActionCommand().equals("密码重置")) {
+			ArrayList<Ticketer> selectTicketer = new ArrayList<Ticketer>();
+			int selLen = table.getSelectedRowCount();
+			if(JOptionPane.showConfirmDialog(this, "为选中的"+selLen+"条记录密码重置为666666", "是否继续", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION) {
+				int [] arr = new int[selLen];
+				for(int i=0;i<selLen;i++) {
+					int row = table.getSelectedRows()[i];
+					Ticketer tTemp = new Ticketer();
+					tTemp.setId(table.getValueAt(row, 1).toString());
+					tTemp.setName(table.getValueAt(row, 2).toString());
+					tTemp.setId_card(table.getValueAt(row, 3).toString());
+					tTemp.setPhone(table.getValueAt(row, 4).toString());
+					tTemp.setAccount(table.getValueAt(row, 5).toString());
+					tTemp.setWindow(table.getValueAt(row, 6).toString());
+					selectTicketer.add(tTemp);
+				}
+				AdminController adminController = new AdminController();
+				boolean result = adminController.resetPassword(selectTicketer);
+				if(result) {
+					JOptionPane.showMessageDialog(this, "成功", "重置密码成功！", JOptionPane.INFORMATION_MESSAGE);
+				}else {
+					JOptionPane.showMessageDialog(this, "失败", "重置密码失败！", JOptionPane.ERROR_MESSAGE);
+				}
+			}
 		}
 		
 		homePage.setEnabled(true);

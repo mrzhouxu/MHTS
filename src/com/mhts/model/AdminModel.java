@@ -6,10 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.junit.Test;
-
 import com.mhts.bean.Record;
 import com.mhts.bean.Ticket;
+import com.mhts.bean.Ticketer;
 import com.mhts.bean.Window;
 import com.mhts.utils.JDBCUtils;
 
@@ -30,7 +29,7 @@ public class AdminModel {
 		Connection con = JDBCUtils.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		String sql = "select * from record where time > ? order by time desc limit ?,?";
+		String sql = "select * from record where status = 0 and time > ? order by time desc limit ?,?";
 		preparedStatement = con.prepareStatement(sql);
 		preparedStatement.setString(1, time);
 		preparedStatement.setInt(2, Integer.valueOf(start));
@@ -61,7 +60,7 @@ public class AdminModel {
 		Connection con = JDBCUtils.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		String sql = "select count(*) from record where time > ? ";
+		String sql = "select count(*) from record where time > ? and status = 0";
 		preparedStatement = con.prepareStatement(sql);
 		preparedStatement.setString(1, time);
 		resultSet = preparedStatement.executeQuery();
@@ -86,7 +85,7 @@ public class AdminModel {
 		String sql = "SELECT SUM(price) FROM record " + 
 				"INNER JOIN ticket " + 
 				"ON record.type = ticket.id " +
-				"WHERE time > ?";
+				"WHERE time > ? and record.status = 0";
 		preparedStatement = con.prepareStatement(sql);
 		preparedStatement.setString(1, time);
 		resultSet = preparedStatement.executeQuery();
@@ -132,7 +131,7 @@ public class AdminModel {
 		Connection con = JDBCUtils.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		String sql = "select * from window";
+		String sql = "select * from window ";
 		preparedStatement = con.prepareStatement(sql);
 		resultSet = preparedStatement.executeQuery();
 		ArrayList<Window> arr = new ArrayList<Window>();
@@ -145,6 +144,116 @@ public class AdminModel {
 		}
 		JDBCUtils.release(con,preparedStatement,resultSet);
 		return arr;
+	}
+	
+	/**
+	 * 查询售票员信息
+	 * @param key
+	 * @param val
+	 * @param start
+	 * @param num
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<Ticketer> getTicketer(String key,String val,String start,int num) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String sql = "select * from ticketer where status=0 and "+key+" like ? order by window  limit ?,?";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, val);
+		preparedStatement.setInt(2, Integer.valueOf(start));
+		preparedStatement.setInt(3, num);
+		resultSet = preparedStatement.executeQuery();
+		ArrayList<Ticketer> arr = new ArrayList<Ticketer>();
+		while(resultSet.next()) {
+			Ticketer temp = new Ticketer();
+			temp.setId(resultSet.getString("id"));
+			temp.setName(resultSet.getString("name"));
+			temp.setId_card(resultSet.getString("id_card"));
+			temp.setPhone(resultSet.getString("phone"));
+			temp.setAccount(resultSet.getString("account"));
+			temp.setWindow(resultSet.getInt("window")+"");
+			temp.setStatus(resultSet.getInt("status")+"");
+			arr.add(temp);
+		}
+		JDBCUtils.release(con,preparedStatement,resultSet);
+		return arr;
+	}
+	
+	/**
+	 * 售票员 共多少条记录
+	 * @param key
+	 * @param val
+	 * @return
+	 * @throws SQLException
+	 */
+	public int getTicketerCount(String key,String val) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String sql = "select count(*) from ticketer where "+key+" like ? and status = 0";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, val);
+		resultSet = preparedStatement.executeQuery();
+		int count = 0;
+		while(resultSet.next()) {
+			count = resultSet.getInt(1);
+		}
+		JDBCUtils.release(con,preparedStatement,resultSet);
+		return count;
+	}
+	
+	/**
+	 * 重置密码
+	 * @param selectTicketer
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean resetPassword(ArrayList<Ticketer> selectTicketer) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		
+		con.setAutoCommit(false);//将自动提交关闭
+		
+		PreparedStatement preparedStatement = null;
+		int resultSet = 0;
+		for(int i=0,len=selectTicketer.size();i<len;i++) {
+			String sql = "update ticketer set password=md5(md5(666666)) where id = ?";
+			preparedStatement = con.prepareStatement(sql);
+			preparedStatement.setString(1, selectTicketer.get(i).getId());
+			preparedStatement.executeUpdate();
+		}
+
+		con.commit();//执行完后，手动提交事务
+		con.setAutoCommit(true);//在把自动提交打开
+		
+		return true;
+	}
+	
+	/**
+	 * 批量删除售票员
+	 * @param selectTicketer
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean delTicketer(ArrayList<Ticketer> selectTicketer) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		
+		con.setAutoCommit(false);//将自动提交关闭
+		
+		PreparedStatement preparedStatement = null;
+		int resultSet = 0;
+		for(int i=0,len=selectTicketer.size();i<len;i++) {
+			String sql = "update ticketer set status = 1  where id = ?";
+			preparedStatement = con.prepareStatement(sql);
+			preparedStatement.setString(1, selectTicketer.get(i).getId());
+			preparedStatement.executeUpdate();
+		}
+
+		con.commit();//执行完后，手动提交事务
+		con.setAutoCommit(true);//在把自动提交打开
+		
+		return true;
 	}
 	
 }

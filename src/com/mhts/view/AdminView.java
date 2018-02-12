@@ -111,7 +111,8 @@ public class AdminView extends JFrame implements ActionListener{
 //		jbutton.setBounds(0, 0, 100, 20);
 //		temp.add(jbutton);
 		
-		main.add(new BusinessStatusView());
+//		main.add(new BusinessStatusView());  todo  打开
+		main.add(new AddTicketerView());
 		
 		/** footer **/
 		JPanel footer = new JPanel(null);
@@ -171,9 +172,10 @@ public class AdminView extends JFrame implements ActionListener{
 			this.main.repaint();
 			this.main.validate();
 		}else if(e.getActionCommand().equals("员工管理")) {
-//			this.main.removeAll();
-//			this.main.add(new BusinessStatusView(Color.black,"员工管理"));
-//			this.main.repaint();
+			this.main.removeAll();
+			this.main.add(new StaffManagementView());
+			this.main.repaint();
+			this.main.validate();
 		}else if(e.getActionCommand().equals("窗口管理")) {
 			System.out.println("窗口管理");
 		}else if(e.getActionCommand().equals("票型管理")) {

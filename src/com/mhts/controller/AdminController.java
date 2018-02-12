@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import com.mhts.bean.Record;
 import com.mhts.bean.Ticket;
+import com.mhts.bean.Ticketer;
 import com.mhts.bean.Window;
 import com.mhts.model.AdminModel;
 
@@ -36,35 +37,16 @@ public class AdminController {
 		AdminModel adminModel = new AdminModel();
 		try {
 			ArrayList<Record> temp = adminModel.selRecord(time, start, num);
-			ArrayList<Ticket> aTicket = adminModel.getTicket();
-			ArrayList<Window> aWindow = adminModel.getWindow();
-			int ticketLen = aTicket.size();
-			int windowLen = aWindow.size();
 			DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			int len = temp.size();
 			for(int i=0;i<len;i++) {
 				Vector vTemp = new Vector();
 				vTemp.add(Integer.valueOf(start)+i+1);
 				vTemp.add(temp.get(i).getId());
-//				idCard.replaceAll("(\\d{4})\\d{10}(\\d{4})","$1****$2")
 				vTemp.add(temp.get(i).getId_card().replaceAll("(\\d{4})\\d{10}([0-9]{3}[0-9Xx]{1})","$1****$2"));
-				for(int j=0;j<ticketLen;j++) {
-					if(aTicket.get(j).getId().equals(temp.get(i).getType())) {
-						vTemp.add(aTicket.get(j).getName());
-						break;
-					}else {
-						vTemp.add(temp.get(i).getType());
-					}
-				}
+				vTemp.add(idTicket(temp.get(i).getType(),temp.get(i).getType()));
 //				vTemp.add(temp.get(i).getType());
-				for(int j=0;j<windowLen;j++) {
-					if(aWindow.get(j).getId().equals(temp.get(i).getWindow())) {
-						vTemp.add(aWindow.get(j).getName());
-						break;
-					}else {
-						vTemp.add(temp.get(i).getWindow());
-					}
-				}
+				vTemp.add(idWindow(temp.get(i).getWindow(), temp.get(i).getWindow()));
 //				vTemp.add(temp.get(i).getWindow());
 				vTemp.add(sdf.format(temp.get(i).getTime()));
 				vTemp.add(temp.get(i).getStatus());
@@ -169,5 +151,135 @@ public class AdminController {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	/**
+	 * 根据id得到票名称
+	 * @param id 票id
+	 * @param val 如果此id不存在返回val 在这里val算是个默认值
+	 * @return
+	 */
+	public String idTicket(String id,String val) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			ArrayList<Ticket> aTicket = adminModel.getTicket();
+			int ticketLen = aTicket.size();
+			for(int j=0;j<ticketLen;j++) {
+				if(aTicket.get(j).getId().equals(id)) {
+					return aTicket.get(j).getName();
+				}
+			}
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return val;
+	}
+	
+	/**
+	 * 根据id得到窗口名称
+	 * @param id 窗口id
+	 * @param val 默认值
+	 * @return
+	 */
+	public String idWindow(String id,String val) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			ArrayList<Window> aWindow = adminModel.getWindow();
+			int windowLen = aWindow.size();
+			for(int j=0;j<windowLen;j++) {
+				if(aWindow.get(j).getId().equals(id)) {
+					return aWindow.get(j).getName();
+				}
+			}
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return val;
+	}
+	
+	/**
+	 * 按条件查询售票员
+	 * @param key
+	 * @param val
+	 * @param skip
+	 * @param num
+	 * @return 
+	 */
+	public Vector getTicketer(String key,String val,String skip,String num) {
+		val = "%"+val+"%";
+		String start = ((Integer.valueOf(skip)-1)*Integer.valueOf(num))+"";
+		Vector arr = new Vector();
+		AdminModel adminModel = new AdminModel();
+		try {
+			ArrayList<Ticketer> temp = adminModel.getTicketer(key, val, start,Integer.valueOf(num));
+			int len = temp.size();
+			for(int i=0;i<len;i++) {
+				Vector vTemp = new Vector();
+				vTemp.add(Integer.valueOf(start)+i+1);
+				vTemp.add(temp.get(i).getId());
+				vTemp.add(temp.get(i).getName());
+				vTemp.add(temp.get(i).getId_card().replaceAll("(\\d{4})\\d{10}([0-9]{3}[0-9Xx]{1})","$1****$2"));
+				vTemp.add(temp.get(i).getPhone().replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2"));
+				vTemp.add(temp.get(i).getAccount());
+				vTemp.add(idWindow(temp.get(i).getWindow(), temp.get(i).getWindow()));
+				vTemp.add(temp.get(i).getStatus());
+				arr.add(vTemp);
+			}
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return arr;
+	}
+	
+	/**
+	 * 售票员 共多少条记录
+	 * @param year
+	 * @param month
+	 * @return
+	 * @throws SQLException
+	 */
+	public int getTicketerCount(String key,String val) {
+		val = "%"+val+"%";
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.getTicketerCount(key,val);
+		} catch (SQLException e) {
+			return 0;
+		}
+	}
+	
+	/**
+	 * 批量重置密码
+	 * @param selectTicketer
+	 * @return
+	 */
+	public boolean resetPassword(ArrayList<Ticketer> selectTicketer) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.resetPassword(selectTicketer);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/**
+	 * 批量删除售票员
+	 * @param selectTicketer
+	 * @return
+	 */
+	public boolean delTicketer(ArrayList<Ticketer> selectTicketer) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.delTicketer(selectTicketer);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
