@@ -133,16 +133,27 @@ public class AdminController {
 	 * 得到所有窗口
 	 * @return
 	 */
-	public Vector getWindow() {
+	public Vector getWindow(int status) {
 		AdminModel adminModel = new AdminModel();
 		Vector result = new Vector();
 		ArrayList<Window> arr = new ArrayList<Window>();
 		try {
-			arr = adminModel.getWindow();
+			arr = adminModel.getWindow(status);
+			ArrayList num = adminModel.getWindowNum();
 			for(int i=0,len=arr.size();i<len;i++) {
 				Vector vTemp = new Vector();
+				vTemp.add(i+1);
 				vTemp.add(arr.get(i).getId());
 				vTemp.add(arr.get(i).getName());
+				for(int j=0,numLen=num.size();j<numLen;j=j+2) {
+					if(arr.get(i).getId().equals(num.get(j))) {
+						vTemp.add(num.get(j+1));
+						break;
+					}
+					if(j==numLen-2) {
+						vTemp.add(0);
+					}
+				}
 				vTemp.add(arr.get(i).getStatus());
 				result.add(vTemp);
 			}
@@ -185,7 +196,7 @@ public class AdminController {
 	public String idWindow(String id,String val) {
 		AdminModel adminModel = new AdminModel();
 		try {
-			ArrayList<Window> aWindow = adminModel.getWindow();
+			ArrayList<Window> aWindow = adminModel.getWindow(-1);
 			int windowLen = aWindow.size();
 			for(int j=0;j<windowLen;j++) {
 				if(aWindow.get(j).getId().equals(id)) {
@@ -334,6 +345,11 @@ public class AdminController {
 		}
 	}
 	
+	/**
+	 * 修改售票员信息
+	 * @param ticketer
+	 * @return
+	 */
 	public boolean editTicketer(Ticketer ticketer) {
 		AdminModel adminModel = new AdminModel();
 		try {
@@ -346,5 +362,52 @@ public class AdminController {
 		}
 	}
 	
+	/**
+	 * 批量删除窗口信息
+	 * @param selectWindow
+	 * @return
+	 */
+	public boolean delWindow(ArrayList<Window> selectWindow) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.delWindow(selectWindow);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
+	/**
+	 * 添加窗口信息
+	 * @param name
+	 * @return
+	 */
+	public boolean addWindow(String name) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.addWindow(name);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * 修改窗口信息
+	 * @param ticketer
+	 * @return
+	 */
+	public boolean editWindow(Window window) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			adminModel.editWindow(window);
+			return true;
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

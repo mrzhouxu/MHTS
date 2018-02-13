@@ -54,7 +54,7 @@ public class AddTicketerView extends JPanel implements ActionListener{
 	{
 		AdminModel adminModel = new AdminModel();
 		try {
-			aWindows = adminModel.getWindow();
+			aWindows = adminModel.getWindow(0);
 			for(int i=0,len = aWindows.size();i<len;i++) {
 				jcWindow.addItem(aWindows.get(i).getName());
 			}

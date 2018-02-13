@@ -114,6 +114,7 @@ public class AdminView extends JFrame implements ActionListener{
 		main.add(new BusinessStatusView()); // todo  ´ò¿ª
 //		main.add(new AddTicketerView(10));
 //		main.add(new StaffManagementView());
+//		main.add(new AddWindowView());
 		
 		/** footer **/
 		JPanel footer = new JPanel(null);

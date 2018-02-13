@@ -41,7 +41,6 @@ public class StaffManagementView extends JPanel implements ActionListener{
 	Vector tableHeader = null;
 	Vector datas = null;
 	int count = 0;
-	double money = 0;
 	JButton homePage = null,previous = null,next = null,endPage = null;
 	JLabel jlCount = null;
 	JComboBox key = null;

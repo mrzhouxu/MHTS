@@ -127,12 +127,19 @@ public class AdminModel {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ArrayList<Window> getWindow() throws SQLException {
+	public ArrayList<Window> getWindow(int status) throws SQLException {
 		Connection con = JDBCUtils.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		String sql = "select * from window ";
-		preparedStatement = con.prepareStatement(sql);
+		if(status==-1) {
+			String sql = "select * from window ";
+			preparedStatement = con.prepareStatement(sql);
+		}else {
+			String sql = "select * from window where status = ?";
+			preparedStatement = con.prepareStatement(sql);
+			preparedStatement.setInt(1, status);
+		}
+		
 		resultSet = preparedStatement.executeQuery();
 		ArrayList<Window> arr = new ArrayList<Window>();
 		while(resultSet.next()) {
@@ -141,6 +148,35 @@ public class AdminModel {
 			temp.setName(resultSet.getString("name"));
 			temp.setStatus(resultSet.getString("status"));
 			arr.add(temp);
+		}
+		return arr;
+	}
+	
+	/**
+	 * 得到窗口中的工作人数
+	 * 窗口id    人数
+	 * window   num
+	 *    1     116
+	 *    2     1
+	 *    3     1
+	 *    4     2
+	 *    6     3
+	 * @return
+	 * 返回一个集合 如下
+	 * 1  116   2   1   3   1   4   2   6   3
+	 * @throws SQLException
+	 */
+	public ArrayList getWindowNum() throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String sql = "select window,count(*) as num from ticketer GROUP BY window";
+		preparedStatement = con.prepareStatement(sql);
+		resultSet = preparedStatement.executeQuery();
+		ArrayList arr = new ArrayList();
+		while(resultSet.next()) {
+			arr.add(resultSet.getString("window"));
+			arr.add(resultSet.getString("num"));
 		}
 		return arr;
 	}
@@ -344,6 +380,66 @@ public class AdminModel {
 		preparedStatement.setString(3, ticketer.getPhone());
 		preparedStatement.setString(4, ticketer.getWindow());
 		preparedStatement.setString(5, ticketer.getId());
+		preparedStatement.executeUpdate();
+	}
+	
+	/**
+	 * 批量删除窗口信息
+	 * @param selectWindow
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean delWindow(ArrayList<Window> selectWindow) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		
+		con.setAutoCommit(false);//将自动提交关闭
+		
+		PreparedStatement preparedStatement = null;
+		int resultSet = 0;
+		for(int i=0,len=selectWindow.size();i<len;i++) {
+			String sql = "update window set status = 1  where id = ?";
+			preparedStatement = con.prepareStatement(sql);
+			preparedStatement.setString(1, selectWindow.get(i).getId());
+			preparedStatement.executeUpdate();
+		}
+
+		con.commit();//执行完后，手动提交事务
+		con.setAutoCommit(true);//在把自动提交打开
+		
+		return true;
+	}
+	
+	/**
+	 * 添加窗口信息
+	 * @param name
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean addWindow(String name) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		int result = 0;
+		String sql = "insert into window(name) values(?)";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, name);
+		result = preparedStatement.executeUpdate();
+		return result == 0 ? false: true;
+	}
+	
+	/**
+	 * 更新窗口信息
+	 * 报错为更新失败 否则为更新成功
+	 * @param ticketer
+	 * @throws SQLException
+	 */
+	public void editWindow(Window window) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		int result = 0;
+		String sql = "update window set name = ? where id = ?";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, window.getName());
+		preparedStatement.setString(2, window.getId());
 		preparedStatement.executeUpdate();
 	}
 	
