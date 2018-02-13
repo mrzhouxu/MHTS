@@ -206,7 +206,14 @@ public class LoginView extends JFrame {
 		// TODO 自动生成的方法存根
 		/** 改变按钮样式 **/
 		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");//Windows风格
+//			UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel"); //Metal风格 (默认)
+//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");//Windows Classic风格
+//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");//Motif风格
+//			String lookAndFeel = "com.sun.java.swing.plaf.mac.MacLookAndFeel";UIManager.setLookAndFeel(lookAndFeel);//Mac风格 (需要在相关的操作系统上方可实现)
+//			String lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";UIManager.setLookAndFeel(lookAndFeel);//GTK风格 (需要在相关的操作系统上方可实现) 
+//			String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName(); UIManager.setLookAndFeel(lookAndFeel);//可跨平台的默认风格
+//			String lookAndFeel = UIManager.getSystemLookAndFeelClassName(); UIManager.setLookAndFeel(lookAndFeel);//当前系统的风格
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			// TODO 自动生成的 catch 块

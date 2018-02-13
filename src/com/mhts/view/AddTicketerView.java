@@ -48,6 +48,7 @@ public class AddTicketerView extends JPanel implements ActionListener{
 	boolean result = false;//注册成功
 	Ticketer ticketer = null;
 	JButton btEnter = null;
+	JLabel jlBreadCut = null;
 	
 	/** 初始化 窗口下拉列表框  **/
 	{
@@ -71,6 +72,7 @@ public class AddTicketerView extends JPanel implements ActionListener{
 		this.id = id;
 		this.jtAccount.setEditable(false);
 		this.jlAccountErr.setVisible(false);
+		jlBreadCut.setText("管理员界面 > 员工管理 > 修改信息");
 		
 		/** 赋值 **/
 		this.ticketer = this.getTicketerInfo(id);
@@ -91,7 +93,7 @@ public class AddTicketerView extends JPanel implements ActionListener{
 	 */
 	AddTicketerView() {
 		/** breadCut **/
-		JLabel jlBreadCut = new JLabel("管理员界面 > 员工管理 > 新增员工");
+		jlBreadCut = new JLabel("管理员界面 > 员工管理 > 新增员工");
 		jlBreadCut.setBounds(30, 10, 200, 30);
 		jlBreadCut.setFont(font);
 		

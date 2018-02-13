@@ -178,7 +178,10 @@ public class AdminView extends JFrame implements ActionListener{
 			this.main.repaint();
 			this.main.validate();
 		}else if(e.getActionCommand().equals("窗口管理")) {
-			System.out.println("窗口管理");
+			this.main.removeAll();
+			this.main.add(new WindowManagementView());
+			this.main.repaint();
+			this.main.validate();
 		}else if(e.getActionCommand().equals("票型管理")) {
 			System.out.println("票型管理");
 		}
