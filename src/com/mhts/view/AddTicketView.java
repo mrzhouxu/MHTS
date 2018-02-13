@@ -11,39 +11,43 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.mhts.bean.Ticket;
 import com.mhts.bean.Ticketer;
 import com.mhts.bean.Window;
 import com.mhts.controller.AdminController;
 import com.mhts.view.AddTicketerView.LsyFocusListener;
 
-public class AddWindowView extends JPanel implements ActionListener{
+public class AddTicketView extends JPanel implements ActionListener{
 	
 	int id = 0;
 	
 	Font font = new Font("宋体", Font.PLAIN, 12);
-	JLabel jlBreadCut = null,jlNameErr = null;
-	JTextField jtName = null;
+	JLabel jlBreadCut = null,jlNameErr = null,jlPriceErr = null;
+	JTextField jtName = null,jtPrice = null;
 	JButton btEnter = null;
 	boolean isClick = true;
+	Ticket ticket = new Ticket();
 	
 	/**
 	 * 修改售票员信息构造方法
 	 * @param id
 	 */
-	AddWindowView(int id){
+	AddTicketView(int id){
 		this();
 		this.id = id;
-		jlBreadCut.setText("管理员界面 > 窗口管理 > 修改信息");
+		jlBreadCut.setText("管理员界面 > 票型管理 > 修改票类型");
 		
 		/** 赋值 **/
-		this.jtName.setText(this.getWindowInfo(id));
+		this.ticket = this.getTicketInfo(id);
+		this.jtName.setText(ticket.getName());
+		this.jtPrice.setText(ticket.getPrice());
 		
 	}
 	
-	AddWindowView() {
+	AddTicketView() {
 		/** breadCut **/
-		jlBreadCut = new JLabel("管理员界面 > 窗口管理 > 新增窗口");
-		jlBreadCut.setBounds(30, 10, 200, 30);
+		jlBreadCut = new JLabel("管理员界面 > 票型管理 > 新增票类型");
+		jlBreadCut.setBounds(30, 10, 300, 30);
 		jlBreadCut.setFont(font);
 		
 		JLabel jlName = new JLabel("姓名：");
@@ -57,6 +61,18 @@ public class AddWindowView extends JPanel implements ActionListener{
 		jlNameErr.setFont(font);
 		jlNameErr.setForeground(Color.red);
 		jlNameErr.setBounds(610, 60, 400, 30);
+		
+		JLabel jlPrice = new JLabel("价格：");
+		jlPrice.setFont(font);
+		jlPrice.setBounds(320, 100, 100, 30);
+		
+		jtPrice = new JTextField();
+		jtPrice.setBounds(400, 100, 200, 30);
+		
+		jlPriceErr = new JLabel();
+		jlPriceErr.setFont(font);
+		jlPriceErr.setForeground(Color.red);
+		jlPriceErr.setBounds(610, 100, 400, 30);
 		
 		/** button **/
 		btEnter = new JButton("确认");
@@ -76,6 +92,9 @@ public class AddWindowView extends JPanel implements ActionListener{
 		this.add(jlName);
 		this.add(jtName);
 		this.add(jlNameErr);
+		this.add(jlPrice);
+		this.add(jtPrice);
+		this.add(jlPriceErr);
 		this.add(btEnter);
 		this.add(btBack);
 		
@@ -89,9 +108,9 @@ public class AddWindowView extends JPanel implements ActionListener{
 	 * @param id
 	 * @return
 	 */
-	public String getWindowInfo(int id) {
+	public Ticket getTicketInfo(int id) {
 		AdminController adminController = new AdminController();
-		return adminController.idWindow(id+"","");
+		return adminController.idTicket(id+"");
 	}
 
 	@Override
@@ -102,16 +121,18 @@ public class AddWindowView extends JPanel implements ActionListener{
 
 				if(e.getActionCommand().equals("确认")) {
 					String name = jtName.getText().replaceAll(" ", "");
+					String price = ((int)(Double.valueOf(jtPrice.getText().replaceAll(" ", ""))*100))+"";
 					if(id==0) {
 						AdminController adminController = new AdminController();
-						boolean result = adminController.addWindow(name);
+						boolean result = adminController.addTicket(name,price);
 						if(result) {
 							int isEnter = JOptionPane.showConfirmDialog(this, "添加成功,是否继续添加？", "成功", JOptionPane.YES_NO_OPTION);
 							if(isEnter==JOptionPane.YES_OPTION) {
 								jtName.setText("");
+								jtPrice.setText("");
 							}else if(isEnter==JOptionPane.NO_OPTION){
 								this.removeAll();
-								this.add(new WindowManagementView());
+								this.add(new TicketManagementView());
 								this.repaint();
 								this.validate();
 							}; 
@@ -120,15 +141,16 @@ public class AddWindowView extends JPanel implements ActionListener{
 						}
 					}else if(id!=0){
 						AdminController adminController = new AdminController();
-						Window window = new Window();
-						window.setId(id+"");
-						window.setName(name);
-						boolean result = adminController.editWindow(window);
+						Ticket ticket = new Ticket();
+						ticket.setId(id+"");
+						ticket.setName(name);
+						ticket.setPrice(price);
+						boolean result = adminController.editTicket(ticket);
 						if(result) {
 							//更新成功
 							JOptionPane.showMessageDialog(this, "成功", "更新成功！", JOptionPane.INFORMATION_MESSAGE);
 							this.removeAll();
-							this.add(new WindowManagementView());
+							this.add(new TicketManagementView());
 							this.repaint();
 							this.validate();
 						}else {
@@ -138,7 +160,7 @@ public class AddWindowView extends JPanel implements ActionListener{
 					}
 				}else if(e.getActionCommand().equals("返回")) {
 					this.removeAll();
-					this.add(new WindowManagementView());
+					this.add(new TicketManagementView());
 					this.repaint();
 					this.validate();
 				}

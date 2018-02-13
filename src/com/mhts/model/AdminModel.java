@@ -102,19 +102,26 @@ public class AdminModel {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ArrayList<Ticket> getTicket() throws SQLException {
+	public ArrayList<Ticket> getTicket(int status) throws SQLException {
 		Connection con = JDBCUtils.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		String sql = "select * from ticket";
-		preparedStatement = con.prepareStatement(sql);
+		if(status == -1) {
+			String sql = "select * from ticket";
+			preparedStatement = con.prepareStatement(sql);
+		}else {
+			String sql = "select * from ticket where status = ?";
+			preparedStatement = con.prepareStatement(sql);
+			preparedStatement.setInt(1, status);
+		}
+		
 		resultSet = preparedStatement.executeQuery();
 		ArrayList<Ticket> arr = new ArrayList<Ticket>();
 		while(resultSet.next()) {
 			Ticket temp = new Ticket();
 			temp.setId(resultSet.getString("id"));
 			temp.setName(resultSet.getString("name"));
-			temp.setPrice(resultSet.getInt("price")/100+"");
+			temp.setPrice(resultSet.getDouble("price")/100+"");
 			temp.setStatus(resultSet.getString("status"));
 			arr.add(temp);
 		}
@@ -443,4 +450,89 @@ public class AdminModel {
 		preparedStatement.executeUpdate();
 	}
 	
+	/**
+	 * 批量删除票类型信息
+	 * @param selectWindow
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean delTicket(ArrayList<Ticket> selectTicket) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		
+		con.setAutoCommit(false);//将自动提交关闭
+		
+		PreparedStatement preparedStatement = null;
+		int resultSet = 0;
+		for(int i=0,len=selectTicket.size();i<len;i++) {
+			String sql = "update ticket set status = 1  where id = ?";
+			preparedStatement = con.prepareStatement(sql);
+			preparedStatement.setString(1, selectTicket.get(i).getId());
+			preparedStatement.executeUpdate();
+		}
+
+		con.commit();//执行完后，手动提交事务
+		con.setAutoCommit(true);//在把自动提交打开
+		
+		return true;
+	}
+	
+	/**
+	 * 添加票类型信息
+	 * @param name
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean addTicket(String name,String price) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		int result = 0;
+		String sql = "insert into ticket(name,price) values(?,?)";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, name);
+		preparedStatement.setString(2, price);
+		result = preparedStatement.executeUpdate();
+		return result == 0 ? false: true;
+	}
+	
+	/**
+	 * 更新票类型信息
+	 * 报错为更新失败 否则为更新成功
+	 * @param ticketer
+	 * @throws SQLException
+	 */
+	public void editTicket(Ticket ticket) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		int result = 0;
+		String sql = "update ticket set name = ?,price = ?  where id = ?";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, ticket.getName());
+		preparedStatement.setString(2, ticket.getPrice());
+		preparedStatement.setString(3, ticket.getId());
+		preparedStatement.executeUpdate();
+	}
+	
+	/**
+	 * 根据id得到票类型对象
+	 * @param id
+	 * @return
+	 * @throws SQLException
+	 */
+	public Ticket idTicket(String id) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String sql = "select * from ticket where id = ?";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, id);
+		resultSet = preparedStatement.executeQuery();
+		Ticket ticket = new Ticket();
+		while(resultSet.next()) {
+			ticket.setId(resultSet.getString("id"));
+			ticket.setName(resultSet.getString("name"));
+			ticket.setPrice(Double.valueOf(resultSet.getInt("price"))/100+"");
+		}
+		JDBCUtils.release(con,preparedStatement,resultSet);
+		return ticket;
+	}
 }

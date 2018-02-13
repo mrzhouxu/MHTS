@@ -184,7 +184,10 @@ public class AdminView extends JFrame implements ActionListener{
 			this.main.repaint();
 			this.main.validate();
 		}else if(e.getActionCommand().equals("票型管理")) {
-			System.out.println("票型管理");
+			this.main.removeAll();
+			this.main.add(new TicketManagementView());
+			this.main.repaint();
+			this.main.validate();
 		}
 		
 		/** 线程 防止按钮多点 **/

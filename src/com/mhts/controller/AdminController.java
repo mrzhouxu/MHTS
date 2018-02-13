@@ -108,14 +108,15 @@ public class AdminController {
 	 * 得到所有票类型
 	 * @return
 	 */
-	public Vector getTicket() {
+	public Vector getTicket(int status) {
 		AdminModel adminModel = new AdminModel();
 		Vector result = new Vector();
 		ArrayList<Ticket> arr = new ArrayList<Ticket>();
 		try {
-			arr = adminModel.getTicket();
+			arr = adminModel.getTicket(status);
 			for(int i=0,len=arr.size();i<len;i++) {
 				Vector vTemp = new Vector();
+				vTemp.add(i+1);
 				vTemp.add(arr.get(i).getId());
 				vTemp.add(arr.get(i).getName());
 				vTemp.add(arr.get(i).getPrice());
@@ -173,7 +174,7 @@ public class AdminController {
 	public String idTicket(String id,String val) {
 		AdminModel adminModel = new AdminModel();
 		try {
-			ArrayList<Ticket> aTicket = adminModel.getTicket();
+			ArrayList<Ticket> aTicket = adminModel.getTicket(-1);
 			int ticketLen = aTicket.size();
 			for(int j=0;j<ticketLen;j++) {
 				if(aTicket.get(j).getId().equals(id)) {
@@ -410,4 +411,65 @@ public class AdminController {
 			return false;
 		}
 	}
+	/**
+	 * 批量删除票类型信息
+	 * @param selectWindow
+	 * @return
+	 */
+	public boolean delTicket(ArrayList<Ticket> selectTicket) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.delTicket(selectTicket);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/**
+	 * 添加票类型信息
+	 * @param name
+	 * @return
+	 */
+	public boolean addTicket(String name,String price) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.addTicket(name,price);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * 修改票类型信息
+	 * @param ticketer
+	 * @return
+	 */
+	public boolean editTicket(Ticket ticket) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			adminModel.editTicket(ticket);
+			return true;
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public Ticket idTicket(String id) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.idTicket(id);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	
 }
