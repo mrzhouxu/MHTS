@@ -142,12 +142,11 @@ public class AdminModel {
 			temp.setStatus(resultSet.getString("status"));
 			arr.add(temp);
 		}
-		JDBCUtils.release(con,preparedStatement,resultSet);
 		return arr;
 	}
 	
 	/**
-	 * 查询售票员信息
+	 * 批量查询售票员信息
 	 * @param key
 	 * @param val
 	 * @param start
@@ -159,7 +158,7 @@ public class AdminModel {
 		Connection con = JDBCUtils.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		String sql = "select * from ticketer where status=0 and "+key+" like ? order by window  limit ?,?";
+		String sql = "select * from ticketer where status=0 and "+key+" like ? order by window,id desc  limit ?,?";
 		preparedStatement = con.prepareStatement(sql);
 		preparedStatement.setString(1, val);
 		preparedStatement.setInt(2, Integer.valueOf(start));
@@ -254,6 +253,98 @@ public class AdminModel {
 		con.setAutoCommit(true);//在把自动提交打开
 		
 		return true;
+	}
+	
+	/**
+	 * 判断账号是否存在
+	 * @param account
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean getAccount(String account) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String sql = "select * from ticketer where account = ? and status = 0";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, account);
+		resultSet = preparedStatement.executeQuery();
+		if(resultSet.next()) {
+			JDBCUtils.release(con,preparedStatement,resultSet);
+			return true;
+		}
+		JDBCUtils.release(con,preparedStatement,resultSet);
+		return false;
+	}
+	
+	/**
+	 * 添加售票员记录
+	 * @param ticketer
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean addTicketer(Ticketer ticketer) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		int result = 0;
+		String sql = "insert into ticketer(name,id_card,phone,account,password,window) values(?,?,?,?,md5(md5(?)),?)";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, ticketer.getName());
+		preparedStatement.setString(2, ticketer.getId_card());
+		preparedStatement.setString(3, ticketer.getPhone());
+		preparedStatement.setString(4, ticketer.getAccount());
+		preparedStatement.setString(5, "666666");
+		preparedStatement.setString(6, ticketer.getWindow());
+		result = preparedStatement.executeUpdate();
+		return result == 0 ? false: true;
+	}
+	
+	/**
+	 * 根据id获得售票员信息
+	 * @param id
+	 * @return
+	 * @throws SQLException
+	 */
+	public Ticketer getTicketer(int id) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String sql = "select * from ticketer where id = ?";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setInt(1, id);
+		resultSet = preparedStatement.executeQuery();
+		Ticketer ticketer = new Ticketer();
+		while(resultSet.next()) {
+			ticketer.setId(resultSet.getString("id"));
+			ticketer.setName(resultSet.getString("name"));
+			ticketer.setId_card(resultSet.getString("id_card"));
+			ticketer.setPhone(resultSet.getString("phone"));
+			ticketer.setAccount(resultSet.getString("account"));
+			ticketer.setWindow(resultSet.getInt("window")+"");
+			ticketer.setStatus(resultSet.getInt("status")+"");
+		}
+		JDBCUtils.release(con,preparedStatement,resultSet);
+		return ticketer;
+	}
+	
+	/**
+	 * 更新售票员信息
+	 * 报错为更新失败 否则为更新成功
+	 * @param ticketer
+	 * @throws SQLException
+	 */
+	public void editTicketer(Ticketer ticketer) throws SQLException {
+		Connection con = JDBCUtils.getConnect();
+		PreparedStatement preparedStatement = null;
+		int result = 0;
+		String sql = "update ticketer set name = ? , id_card = ? , phone = ? , window = ?  where id = ?";
+		preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, ticketer.getName());
+		preparedStatement.setString(2, ticketer.getId_card());
+		preparedStatement.setString(3, ticketer.getPhone());
+		preparedStatement.setString(4, ticketer.getWindow());
+		preparedStatement.setString(5, ticketer.getId());
+		preparedStatement.executeUpdate();
 	}
 	
 }

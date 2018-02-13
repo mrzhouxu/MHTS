@@ -62,7 +62,7 @@ public class Ticketer {
 	@Override
 	public String toString() {
 		return "Ticketer [id=" + id + ", name=" + name + ", id_card=" + id_card + ", phone=" + phone + ", account="
-				+ account + ", password=" + password + ", status=" + status + "]";
+				+ account + ", password=" + password + ", window=" + window + ", status=" + status + "]";
 	}
 	
 	

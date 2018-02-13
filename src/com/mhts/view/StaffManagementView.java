@@ -304,11 +304,25 @@ public class StaffManagementView extends JPanel implements ActionListener{
 			this.repaint();
 			this.validate();
 		}else if(e.getActionCommand().equals("修改")) {
-			System.out.println("修改");
+			int selLen = table.getSelectedRowCount();
+			if(selLen < 1) {//不能删
+				//请选择要修改的记录
+				JOptionPane.showMessageDialog(this, "亲爱的，别着急呀，先选择要修改的记录吧！", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
+			}else if(selLen > 1) {
+				//老板拖欠工资，多条修改功能不打算开发，请暂先一条一条修改
+				JOptionPane.showMessageDialog(this, "老板拖欠工资，多条修改功能不打算开发，请暂先一条一条修改！", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
+			}else {
+				this.removeAll();
+				this.add(new AddTicketerView(Integer.valueOf(table.getValueAt(table.getSelectedRow(), 1).toString())));
+				this.repaint();
+				this.validate();
+			}
 		}else if(e.getActionCommand().equals("删除")) {
 			ArrayList<Ticketer> selectTicketer = new ArrayList<Ticketer>();
 			int selLen = table.getSelectedRowCount();
-			if(JOptionPane.showConfirmDialog(this, "将要删除选中的"+selLen+"条记录", "是否继续", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION) {
+			if(selLen < 1) {//不能删
+				
+			}else if(JOptionPane.showConfirmDialog(this, "将要删除选中的"+selLen+"条记录", "是否继续", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION) {
 				int [] arr = new int[selLen];
 				for(int i=0;i<selLen;i++) {
 					int row = table.getSelectedRows()[i];
@@ -342,7 +356,9 @@ public class StaffManagementView extends JPanel implements ActionListener{
 		}else if(e.getActionCommand().equals("密码重置")) {
 			ArrayList<Ticketer> selectTicketer = new ArrayList<Ticketer>();
 			int selLen = table.getSelectedRowCount();
-			if(JOptionPane.showConfirmDialog(this, "为选中的"+selLen+"条记录密码重置为666666", "是否继续", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION) {
+			if(selLen < 1) {
+				
+			}else if(JOptionPane.showConfirmDialog(this, "为选中的"+selLen+"条记录密码重置为666666", "是否继续", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION) {
 				int [] arr = new int[selLen];
 				for(int i=0;i<selLen;i++) {
 					int row = table.getSelectedRows()[i];

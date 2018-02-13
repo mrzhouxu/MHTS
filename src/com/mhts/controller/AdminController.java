@@ -221,7 +221,8 @@ public class AdminController {
 				vTemp.add(temp.get(i).getId());
 				vTemp.add(temp.get(i).getName());
 				vTemp.add(temp.get(i).getId_card().replaceAll("(\\d{4})\\d{10}([0-9]{3}[0-9Xx]{1})","$1****$2"));
-				vTemp.add(temp.get(i).getPhone().replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2"));
+//				vTemp.add(temp.get(i).getPhone().replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2"));
+				vTemp.add(temp.get(i).getPhone());
 				vTemp.add(temp.get(i).getAccount());
 				vTemp.add(idWindow(temp.get(i).getWindow(), temp.get(i).getWindow()));
 				vTemp.add(temp.get(i).getStatus());
@@ -282,4 +283,68 @@ public class AdminController {
 		}
 		return false;
 	}
+	
+	/**
+	 * 判断账号是否存在
+	 * 如果存在返回 true 不存在则返回 false
+	 * 报错按存在处理
+	 * @param account
+	 * @return
+	 */
+	public boolean getAccount(String account) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.getAccount(account);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return true;
+		}
+	}
+	
+	/**
+	 * 添加售票员记录
+	 * @param ticketer
+	 * @return
+	 */
+	public boolean addTicketer(Ticketer ticketer) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.addTicketer(ticketer);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * 根据id获得售票员记录
+	 * @param id
+	 * @return
+	 */
+	public Ticketer getTicketer(int id) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			return adminModel.getTicketer(id);
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public boolean editTicketer(Ticketer ticketer) {
+		AdminModel adminModel = new AdminModel();
+		try {
+			adminModel.editTicketer(ticketer);
+			return true;
+		} catch (SQLException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	
 }

@@ -111,8 +111,9 @@ public class AdminView extends JFrame implements ActionListener{
 //		jbutton.setBounds(0, 0, 100, 20);
 //		temp.add(jbutton);
 		
-//		main.add(new BusinessStatusView());  todo  打开
-		main.add(new AddTicketerView());
+//		main.add(new BusinessStatusView()); // todo  打开
+		main.add(new AddTicketerView(10));
+//		main.add(new StaffManagementView());
 		
 		/** footer **/
 		JPanel footer = new JPanel(null);
