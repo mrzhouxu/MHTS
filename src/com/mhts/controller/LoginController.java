@@ -35,18 +35,18 @@ public class LoginController {
 	 * @param ticketer
 	 * @return
 	 */
-	public boolean ticketerLogin(Ticketer ticketer) {
+	public Ticketer ticketerLogin(Ticketer ticketer) {
 		LoginModel login = new LoginModel();
 		try {
 			ArrayList<Ticketer> arr = login.ticketerLogin(ticketer);
 			if(arr.size()>0) {
-				return true;
+				return arr.get(0);
 			}else {
-				return false;
+				return null;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		}
 	}
 }

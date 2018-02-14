@@ -50,7 +50,7 @@ public class AddTicketView extends JPanel implements ActionListener{
 		jlBreadCut.setBounds(30, 10, 300, 30);
 		jlBreadCut.setFont(font);
 		
-		JLabel jlName = new JLabel("姓名：");
+		JLabel jlName = new JLabel("票类型：");
 		jlName.setFont(font);
 		jlName.setBounds(320, 60, 100, 30);
 		
@@ -62,7 +62,7 @@ public class AddTicketView extends JPanel implements ActionListener{
 		jlNameErr.setForeground(Color.red);
 		jlNameErr.setBounds(610, 60, 400, 30);
 		
-		JLabel jlPrice = new JLabel("价格：");
+		JLabel jlPrice = new JLabel("票价格：");
 		jlPrice.setFont(font);
 		jlPrice.setBounds(320, 100, 100, 30);
 		

@@ -26,19 +26,23 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EtchedBorder;
 
 import com.mhts.bean.Admin;
+import com.mhts.bean.Ticketer;
+import com.mhts.controller.AdminController;
+import com.mhts.controller.LoginController;
 
-public class AdminView extends JFrame implements ActionListener{
+public class StaffView extends JFrame implements ActionListener{
 	
-	Admin admin = null ;
+	Ticketer ticketer = null ;
 	boolean isClick = true;
 	JPanel main = null;
+	AdminController adminController = new AdminController();
 
 	/**
 	 * 管理员界面
 	 * @param admin
 	 */
-	AdminView(Admin admin) {
-		this.admin = admin;
+	StaffView(Ticketer ticketer) {
+		this.ticketer = ticketer;
 		this.setTitle("欢迎使用猴山售票系统！");
 		this.setSize(1200, 900);
 		this.setFocusable(true);
@@ -50,13 +54,13 @@ public class AdminView extends JFrame implements ActionListener{
 //		header.setBorder(BorderFactory.createTitledBorder(""));//设置边界
 		header.setBorder(new EtchedBorder(EtchedBorder.RAISED));//设置边界
 		
-		JLabel title = new JLabel("管理员界面",JLabel.CENTER);//第二个参数 表示  字体居中对齐方式
+		JLabel title = new JLabel(adminController.idWindow(this.ticketer.getWindow(), this.ticketer.getWindow()),JLabel.CENTER);//第二个参数 表示  字体居中对齐方式
 		title.setFont(new Font("宋体",Font.PLAIN,30));
 		title.setSize(1200, 100);
 		
-		JLabel name = new JLabel("欢迎您，管理员");
+		JLabel name = new JLabel("欢迎您，"+this.ticketer.getName());
 		name.setFont(new Font("宋体",Font.PLAIN,14));
-		name.setBounds(800, 70, 100, 20);
+		name.setBounds(700, 70, 200, 20);
 		
 		JButton btLogout = new JButton("注销");
 		btLogout.setBounds(920, 65, 60, 25);
@@ -77,44 +81,30 @@ public class AdminView extends JFrame implements ActionListener{
 		menu.setBorder(new EtchedBorder(EtchedBorder.RAISED));//设置边界
 		menu.setLayout(new FlowLayout(FlowLayout.CENTER,0,20));//流式布局
 		
-		JButton businessStatus = new JButton("营业状况");
+		JButton businessStatus = new JButton("售票功能");
 		businessStatus.setPreferredSize(new Dimension(150, 40));
 		businessStatus.setFont(new Font("宋体", Font.PLAIN, 14));
 		
-		JButton staffManagement = new JButton("员工管理");
-		staffManagement.setPreferredSize(new Dimension(150, 40));
-		staffManagement.setFont(new Font("宋体", Font.PLAIN, 14));
+//		JButton staffManagement = new JButton("售票记录");
+//		staffManagement.setPreferredSize(new Dimension(150, 40));
+//		staffManagement.setFont(new Font("宋体", Font.PLAIN, 14));
 		
-		JButton windowManagement = new JButton("窗口管理");
+		JButton windowManagement = new JButton("修改密码");
 		windowManagement.setPreferredSize(new Dimension(150, 40));
 		windowManagement.setFont(new Font("宋体", Font.PLAIN, 14));
 		
-		JButton ticketManagement = new JButton("票型管理");
-		ticketManagement.setPreferredSize(new Dimension(150, 40));
-		ticketManagement.setFont(new Font("宋体", Font.PLAIN, 14));
 		
 		menu.add(businessStatus);
-		menu.add(staffManagement);
+//		menu.add(staffManagement);
 		menu.add(windowManagement);
-		menu.add(ticketManagement);
 		
 		/** main **/
 		main = new JPanel(null);
-//		main.setBackground(Color.red);
 		main.setPreferredSize(new Dimension(1000, 770));//这里setSize不能改变标题大小，只能使用setPreferredSize
 		main.setBorder(new EtchedBorder(EtchedBorder.RAISED));//设置边界
 		
-//		JPanel temp = new BusinessStatusView();
-//		temp.setBounds(0, 0, 100, 100);
-//		temp.setBackground(Color.yellow);
-//		JButton jbutton = new JButton("123");
-//		jbutton.setBounds(0, 0, 100, 20);
-//		temp.add(jbutton);
 		
-		main.add(new BusinessStatusView()); // todo  打开
-//		main.add(new AddTicketerView(10));
-//		main.add(new StaffManagementView());
-//		main.add(new AddWindowView());
+		main.add(new AddRecordView(ticketer)); // todo  打开
 		
 		/** footer **/
 		JPanel footer = new JPanel(null);
@@ -131,9 +121,8 @@ public class AdminView extends JFrame implements ActionListener{
 		btExit.addActionListener(this);
 		btLogout.addActionListener(this);
 		businessStatus.addActionListener(this);
-		staffManagement.addActionListener(this);
+//		staffManagement.addActionListener(this);
 		windowManagement.addActionListener(this);
-		ticketManagement.addActionListener(this);
 		
 		/** 窗体布局 **/
 		this.add(BorderLayout.NORTH,header);
@@ -150,9 +139,15 @@ public class AdminView extends JFrame implements ActionListener{
 		
 	}
 	
-//	public static void main(String[] args) {
-//		new AdminView(null);
-//	}
+	public static void main(String[] args) {
+		LoginController login = new LoginController();
+		Ticketer ticketer = new Ticketer();
+		ticketer.setId("105");;
+		ticketer.setAccount("999");
+		ticketer.setPassword("666666");
+		Ticketer ticketerTemp = login.ticketerLogin(ticketer);
+		new StaffView(ticketerTemp);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -168,24 +163,19 @@ public class AdminView extends JFrame implements ActionListener{
 			if(JOptionPane.showConfirmDialog(this, "您将要退出系统,是否继续？", "退出", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				this.dispose();
 			}
-		}else if(e.getActionCommand().equals("营业状况")) {
+		}else if(e.getActionCommand().equals("售票功能")) {
+			this.main.removeAll();
+			this.main.add(new AddRecordView(this.ticketer));
+			this.main.repaint();
+			this.main.validate();
+		}else if(e.getActionCommand().equals("售票记录")) {
 			this.main.removeAll();
 			this.main.add(new BusinessStatusView());
 			this.main.repaint();
 			this.main.validate();
-		}else if(e.getActionCommand().equals("员工管理")) {
+		}else if(e.getActionCommand().equals("修改密码")) {
 			this.main.removeAll();
-			this.main.add(new StaffManagementView());
-			this.main.repaint();
-			this.main.validate();
-		}else if(e.getActionCommand().equals("窗口管理")) {
-			this.main.removeAll();
-			this.main.add(new WindowManagementView());
-			this.main.repaint();
-			this.main.validate();
-		}else if(e.getActionCommand().equals("票型管理")) {
-			this.main.removeAll();
-			this.main.add(new TicketManagementView());
+			this.main.add(new ChangePasswordView(this.ticketer));
 			this.main.repaint();
 			this.main.validate();
 		}

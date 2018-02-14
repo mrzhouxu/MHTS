@@ -165,6 +165,7 @@ public class LoginView extends JFrame {
 	 */
 	public void submit(int status,Admin admin,Ticketer ticketer) {
 		boolean suc = false;
+		Ticketer ticketerTemp = null;
 		if(status == 1) {
 			if(admin.getAccount().equals("")||admin.getPassword().equals("")) {
 				errMsg.setText("账号和密码不能为空！");
@@ -179,7 +180,12 @@ public class LoginView extends JFrame {
 				return;
 			}else {
 				LoginController login = new LoginController();
-				suc = login.ticketerLogin(ticketer);
+				ticketerTemp = login.ticketerLogin(ticketer);
+				if(ticketerTemp==null) {
+					suc = false;
+				}else{
+					suc = true;
+				};
 			}
 		}
 		
@@ -190,6 +196,8 @@ public class LoginView extends JFrame {
 				new AdminView(admin);
 			}else if(status == 2) {
 				this.dispose();
+//				System.out.println(ticketerTemp);
+				new StaffView(ticketerTemp);
 			}
 			//进入界面
 		}else {

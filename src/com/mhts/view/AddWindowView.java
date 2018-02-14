@@ -46,7 +46,7 @@ public class AddWindowView extends JPanel implements ActionListener{
 		jlBreadCut.setBounds(30, 10, 200, 30);
 		jlBreadCut.setFont(font);
 		
-		JLabel jlName = new JLabel("ÐÕÃû£º");
+		JLabel jlName = new JLabel("´°¿ÚÃû³Æ£º");
 		jlName.setFont(font);
 		jlName.setBounds(320, 60, 100, 30);
 		

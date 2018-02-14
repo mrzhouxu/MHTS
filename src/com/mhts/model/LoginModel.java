@@ -57,6 +57,12 @@ public class LoginModel {
 		while(resultSet.next()) {
 			Ticketer temp = new Ticketer();
 			temp.setId(resultSet.getString("id"));
+			temp.setName(resultSet.getString("name"));
+			temp.setId_card(resultSet.getString("id_card"));
+			temp.setPhone(resultSet.getString("phone"));
+			temp.setAccount(resultSet.getString("account"));
+			temp.setWindow(resultSet.getString("window"));
+			temp.setStatus(resultSet.getString("status"));
 			arr.add(temp);
 		}
 		JDBCUtils.release(con,preparedStatement,resultSet);
